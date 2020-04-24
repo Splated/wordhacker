@@ -1,0 +1,83 @@
+html, body { 
+	background-color:#000000;
+	width: 100%;
+	
+}
+	
+td.side {
+
+	text-align:center;
+	font-size:18pt;
+	height:42px;
+} 
+
+table.main {
+	margin: 0;
+	padding: 0;
+	width:480px;
+	height:700px;
+	text-align:center;
+	color:white;
+	font-size:18pt;
+	background-color:#000000;
+}
+
+td.menu {
+	color:white;
+	font-size:18pt;
+	width: 250px;
+	text-align:right; 
+}
+td.top {
+	color:white;
+	font-size:12pt;
+	text-align:center;
+    height: 30px;
+    vertical-align:bottom;
+}
+
+div.Debugscrollable {
+	color:white;
+	background-color:#000000;
+    width: 320px;
+    height: 720px;
+    font-size:8pt;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+
+div.scrollable {
+	background-color:#000000;
+    width: 320px;
+    height: 420px;
+    font-size:12pt;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+input.inputbox{
+background-color:transparent;
+color: red; 
+font-weight: bold; 
+padding-left: 2px;
+font-size: 48px; 
+width: 3em;
+border-width: 1px;
+
+}
+input.inputbox2{
+width: 318px;
+color: white; 
+font-size:12pt;
+margin: 0;
+padding: 0;
+background-color:transparent;
+text-transform:uppercase;
+border: 1px dashed #D1C7AC;
+}
+
+
+

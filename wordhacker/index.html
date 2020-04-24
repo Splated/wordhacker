@@ -1,0 +1,703 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Word Hacker</title>
+<meta name = "viewport" content = "width = device-width">
+<meta name = "viewport" content = "width = 320">
+<link rel="apple-touch-icon-precomposed" href="custom_icon.png"/>
+<link rel="shortcut icon" href="custom_icon.png" />
+<link rel='stylesheet' type='text/css' href='css.css?version=1' media='all'>
+
+<script type="text/javascript" src="3.js"/></script>
+<script type="text/javascript" src="4.js"/></script>
+<script type="text/javascript" src="5.js"/></script>
+<script type="text/javascript" src="6.js"/></script>
+<script type="text/javascript" src="7.js"/></script>
+<script type="text/javascript" src="8.js"/></script>
+<script type="text/javascript" src="Ai.js"/></script>
+<script>
+var removedletters = new Array();
+var keepletters = new Array();
+//var Wordarray = new Array();
+var Password = "";
+var PlayerPassword = "";
+var Wordarray=[];
+var MegaWordArray=[];
+var PassWordArray=[];
+var GoodWordArray=[];
+var GameType="";
+var BackGround="cspace";
+var WordSize=1;
+var whitecolor = "white";
+var greycolor = "grey";
+var greencolor = "#00FF00";
+
+var Ailevel = 0;
+
+var debugstring = "Debug On <br>";
+var debug = false;
+
+var AiTurn = false;
+
+var n=document.URL.split("?");
+
+if ( n[1] == "debug"){debug = true}
+
+
+
+
+function Debug(text){
+if (!debug) {return;}
+	debugstring = debugstring + text+ "<br>";
+	
+	var objDiv = document.getElementById("debug");
+	objDiv.innerHTML = debugstring;
+	objDiv.scrollTop = objDiv.scrollHeight;
+}
+
+
+
+function clickL(e){
+	var test = e.textContent;
+
+	
+	var remove = removedletters.indexOf(test);
+	var  keep = keepletters.indexOf(test);
+	
+	
+	if (keep > -1) {
+		keepletters.splice(keep,1);
+	}
+
+	if (remove > -1) {
+		removedletters.splice(remove,1);
+	}
+
+
+
+	if ( keep == -1 && remove == -1){
+		
+		removedletters.push(test);
+	}
+
+
+	if ( remove > -1 ){
+		keepletters.push(test);
+	}
+
+	Updateview();
+}
+
+function Clear(){
+	removedletters.length = 0;
+	keepletters.length = 0;
+	Updateview();
+}
+
+function Updateview(){
+
+
+
+	RSideBar();
+	LSideBar();
+	Center();
+	//TopBar("Enter a Guess");
+	document.getElementById("InputBox").placeholder = "Enter a Guess";
+	if (GameType == "VS AI" && PlayerPassword == "" ){
+		//TopBar("Enter your Code word");
+		document.getElementById("InputBox").placeholder = "Enter your Code word";
+	}
+	
+	
+}
+
+var scrollMainScreen=0;
+function mainscreenscroll(objDiv){
+	scrollMainScreen = objDiv.scrollTop;
+}
+
+
+var flip = false;
+function Center(){
+	
+	
+	var str = "<div id='mainscreen' class=scrollable onscroll='mainscreenscroll(this)' ><table cellspacing=0 cellpadding=0 border=0 width=100% '>";
+	
+	if (Wordarray.length>0){
+		//for(i=Wordarray.length - 1; i >= 0;i--){
+		for (i=0;i<Wordarray.length;i++){
+			var color = whitecolor;
+	
+		
+			var letters = Wordarray[i].split('');
+			var uniquelet = [];
+			var word ="";
+		
+		
+		
+			for (l=0;l<letters.length;l++){
+				var test = letters[l];
+				var color = whitecolor;
+				if (keepletters.indexOf(test) > -1) { color = greencolor; }
+				if (removedletters.indexOf(test) > -1) {color = "gray"; }
+			
+				word = word  + "<span style='color:"+color+"'  >" + test +"</span>";
+			
+				if (uniquelet.indexOf(test) === -1) { uniquelet.push(test)}
+			}
+			var count = 0;
+			for (c=0;c<uniquelet.length;c++){
+				if(Password.indexOf(uniquelet[c]) > -1) { count = count + 1; }
+			}
+		
+		var extra = "white;>";
+		//onclick='Zero()'
+		
+		if (count == 0){
+		extra = "grey; onclick='Zero(this)'>";
+		
+		}
+		
+		
+		
+		if (flip){
+			flip = false;
+		var who = '<td width=15 style=text-align:right;>Ai:_</td>';
+		}else{
+		var who = '<td width=15 style=text-align:right;>Me:_</td>';
+			flip = true;
+		}
+		
+		if (GameType != "VS AI"){var who = '';}
+			str = str + "<tr>"+ who +"<td style=text-align:left; onclick='Define(this)'>" + word +"</td> <td style=text-align:left;color:"+ extra + count +"</td></tr>"
+		}
+	}
+	str = str +" </table></div>" + 
+	"<input id='InputBox' type='text' class=inputbox2 placeholder='' autocomplete=off onkeypress='searchKeyPress(event);'>";
+	 //"<form><input id='InputBox' type='text' class=inputbox onkeypress='searchKeyPress(event);'>"+ 
+	
+	document.getElementById("Center").innerHTML = str;
+	
+	document.getElementById("mainscreen").scrollTop = scrollMainScreen;
+	
+	
+	
+	
+}
+
+
+function Define(obj){
+
+
+var StrippedString = obj.parentNode.innerHTML.replace(/(<([^>]+)>)/ig,"").replace(/\W/g, '').replace(/[0-9]/g, '');
+//var gohere = "http://www.thefreedictionary.com/"+StrippedString;
+var gohere = "http://www.dict.org/bin/Dict?Form=Dict2&Database=*&Query="+StrippedString;
+
+//Debug('gohere:'+gohere);
+//window.open(""+gohere,'MyWindow','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=no,resizable=no,width=600,height=300');
+
+window.open(gohere, '_blank', 'toolbar=0,location=0,menubar=0');
+
+}
+
+function Help(){
+
+window.open("./help.html", '_blank', 'toolbar=0,location=0,menubar=0');
+}
+
+
+
+
+
+function Zero(obj){
+	
+	var StrippedString = obj.parentNode.innerHTML.replace(/(<([^>]+)>)/ig,"").replace(/\W/g, '').replace(/[0-9]/g, '');
+
+	
+	var letters = StrippedString.split('');
+	for (l=0;l<letters.length;l++){
+				var remove = removedletters.indexOf(letters[l]);
+				if ( remove == -1){
+					removedletters.push(letters[l]);
+					var  keep = keepletters.indexOf(letters[l]);
+					if (keep > -1) { keepletters.splice(keep,1);}
+	
+				}
+	}
+	Updateview()
+}
+
+
+
+function TopBar(str){
+document.getElementById("TopBar").innerHTML = str;
+}
+
+function RSideBar(){
+	var letarray=["N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+	var str = "<table cellspacing=0 cellpadding=0 border=0 width=100%  >";
+	for (i=0;i<letarray.length;i++){
+		var test = letarray[i];
+		var color = whitecolor;
+		if (keepletters.indexOf(test) > -1) { color = greencolor; }
+		if (removedletters.indexOf(test) > -1) {color = "gray"; }
+		str = str + "<tr><td class=side onclick=\"clickL(this)\" style=color:"+ color +">" + test +"</td></tr>"
+	}
+	str = str +"</table>";
+	document.getElementById("RSideBar").innerHTML = str;
+}
+
+function LSideBar(){
+	var letarray=["A","B","C","D","E","F","G","H","I","J","K","L","M"];
+	var str = "<table cellspacing=0 cellpadding=0 border=0 width=100%  >";
+	for (i=0;i<letarray.length;i++){
+		var test = letarray[i];
+		var color = whitecolor;
+		if (keepletters.indexOf(test) > -1) { color = greencolor; }
+		if (removedletters.indexOf(test) > -1) {color = "gray"; }
+		str = str + "<tr><td class=side onclick=\"clickL(this)\" style=color:"+ color +">" + test +"</td></tr>"
+	}
+	str = str +"</table>";
+	document.getElementById("LSideBar").innerHTML = str;
+}
+
+
+
+function StartGame(){
+	GameType=document.getElementById('GameType').value;
+	BackGround=document.getElementById('BackGround').value;
+	myString=document.getElementById('WordSize').value;
+
+	myString = myString.replace(/\D/g,'');
+	WordSize = + myString;
+	
+
+	document.getElementById("myTable").style.background='url('+ BackGround +'.png)';
+	
+	
+	if (GameType == 'VS Easy AI') {
+		GameType = 'VS AI';
+		Ailevel = 1;
+	}
+	if (GameType == 'VS Medium AI') {
+		GameType = 'VS AI';
+		Ailevel = 2;
+	}
+	if (GameType == 'VS Hard AI') {
+		GameType = 'VS AI';
+		Ailevel = 3;
+	}
+	
+	
+	
+	Debug('WordSize:'+WordSize);
+	Debug('BackGround:'+BackGround);
+	Debug('GameType:'+GameType);
+	Debug('Ailevel:'+ Ailevel);
+	
+	
+	switch(WordSize){
+	case 4:
+  		Load4();
+  	break;
+	case 5:
+  		Load5();
+  	break;
+	case 6:
+  		Load6();
+  	break;
+	case 7:
+  		Load7();
+  	break;
+	case 8:
+  		Load8();
+  	break;
+
+
+
+	default:
+  		Load3();
+}
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	for (i=0;i<MegaWordArray.length;i++){
+		var test = MegaWordArray[i];
+		
+		var value = testdupe(test);
+		if(value == WordSize){ PassWordArray.push(test); }
+		
+		if (value <= (WordSize/2)) {GoodWordArray.push(test);}
+
+	}
+	
+	Debug('MegaWordArray:'+ MegaWordArray.length + ' PassWordArray:'+PassWordArray.length + " GoodWordArray:"+GoodWordArray.length);
+
+	Password = PassWordArray[Math.floor(Math.random() * PassWordArray.length)];
+	
+	
+	Debug('Password:'+Password);
+	
+	LoadGame();
+}
+
+
+
+
+
+function DoneLoading(){
+	document.getElementById("myTable").style.background='url('+ BackGround +'.png)';
+	var mytablestr = "<form>"+
+	"<tr><td class=menu </td><td class=menu </td></tr>"+
+	
+	"<tr height=100 ><td colspan=2 >Word Hacker</td></tr>"+
+	
+	"<tr height=70 ><td class=menu </td><td class=menu </td></tr>"+
+	"<tr height=40><td class=menu >Game Type:</td><td  style=text-align:left;> <select id='GameType'>"+
+  	"<option>Solo</option>"
+  	+ "	<option >VS Easy AI</option>"
+  	+ "	<option >VS Medium AI</option>"
+  	+ "	<option >VS Hard AI</option>";
+  	
+  	if (debug){ mytablestr = mytablestr + "	<option>AI Test</option>";}
+  	//selected='selected'
+  	
+  	
+  	
+  	
+  	mytablestr = mytablestr + "</tr>"+
+
+	"<tr height=40><td class=menu ><form>Word Size:</td><td style=text-align:left;> <select id='WordSize'>"+
+  	"<option>3-Letter Words</option>"+
+  	"<option>4-Letter Words</option>"+
+  	"<option selected='selected'>5-Letter Words</option>"+
+  	"<option>6-Letter Words</option>"+
+  	"<option>7-Letter Words</option>"+
+  	"<option>8-Letter Words</option>"+
+  	"</tr>"+
+  	
+	"<tr height=40><td class=menu ><form>Back Ground:</td><td style=text-align:left;> <select id='BackGround'>"+
+  	
+  	"<option>Mac-Classic</option>"+
+  	"<option>PC-Classic</option>"+
+  	"<option>Steampunk</option>"+
+  	"<option>Space-Age</option>"+
+  	
+  	"</tr>"+
+
+	"<tr height=40><td colspan=2><button type='button' onclick='StartGame()'>New Game</button></td></tr>"+
+	"<tr height=40><td colspan=2><button type='button' onclick='Help()'>How to Play</button></td></tr>"+
+	"<tr ><td></td><td></td></tr>"+
+	"</form>";
+	
+document.getElementById("myTable").innerHTML=mytablestr;
+}
+function LoadGame(){
+
+	
+	document.getElementById("myTable").innerHTML=
+	"<tr valign='top'>"+
+  	"<td rowspan = '2'  width='40' align='right' id='LSideBar'></td>"+
+  	"<td class=top id='TopBar'></td>"+
+  	"<td rowspan = '2' width='40' align='left' id='RSideBar'></td>"+
+  	"</tr>"+
+  	
+ 	"<tr><td  align='center'  id='Center'></td></tr>"+
+	
+ 
+
+  	"<tr><td colspan = '3'  width='50' align='center' height='164' >"+
+  	 	
+  	 		"<table cellspacing=0 cellpadding=0 border=0 width=100%  height=100% >"+
+  	 		"<tr>"+
+  	 		"<td width='30%' height='99' onclick='Hint()'  align='center'></td>"+
+  	 	
+  	 		"<td width='30%' onclick='Random()' align='center'></td>"+
+  	 	
+  	 		"<td width='30%' onclick='Clear()'  align='center'></td>"+
+  	 		"</tr>"+
+  	 		
+  	 		"<tr><td colspan=3 >"+
+  	 		
+  	 		
+  	 		"<table cellspacing=0 cellpadding=0 border=0 width=100%  height=100% >"+
+  	 		"<tr><td width='83%' onclick='Keyboard()' align='center'></td>"+
+  	 		
+  	 		"<td align='center' onclick='Help()' style=vertical-align:bottom; >?</td></tr></table>"+
+  	 		
+  	 		
+  	 		"</td></tr></table>"+
+  			
+  	"</td></tr>";
+ 
+ 
+ 
+
+	Updateview();
+
+}
+
+
+
+
+
+
+function searchKeyPress(e){
+        // look for window.event in case event isn't passed in
+        if (typeof e == 'undefined' && window.event) { e = window.event; }
+        if (e.keyCode == 13) {
+       		Enter(); 
+        	e.preventDefault();
+        }
+}
+    
+function Enter(){
+	
+	var input = document.getElementById("InputBox").value;
+	input = input.toUpperCase().replace(/\W/g, '').replace(/[0-9]/g, '');
+	input = input.substring(0,WordSize);
+	
+ 	if (GameType == "VS AI" && PlayerPassword == "" ){
+		 
+		 if (PassWordArray.indexOf(input) > -1) {
+		 	PlayerPassword = input;
+		 	
+		 	
+		 	Debug("PlayerPassword:"+PlayerPassword);
+		 	
+		 }else{
+		 	alert('Not a good Password');
+		 }
+		
+ 	}else {
+
+	
+	
+		var  keep = MegaWordArray.indexOf(input);
+	
+	
+		if (keep > -1) {
+			PushWordList(input);
+			//if (input != ""){ Wordarray.push(input);}
+
+		}else{
+			alert('word not in my list');
+		}
+ 	}
+ 	
+ 	
+ 	document.getElementById("InputBox").value = ''; 
+	scrollMainScreen = document.getElementById("mainscreen").scrollHeight;
+    Updateview();
+}
+
+function Keyboard(){
+ 	document.getElementById("InputBox").focus();
+}
+
+
+
+
+function PushWordList(daword){
+
+	if (daword == Password) {
+		Win();
+		return;
+	}
+
+	if (daword == PlayerPassword) {
+		Loss();
+		return;
+	}
+
+
+
+if ( daword == "" ) return;
+	
+
+
+	Wordarray.push(daword);
+	
+	if (GameType == "VS AI" ){
+		TopBar("Ai Thinking");
+		Wordarray.push(AiGuess(PlayerPassword));
+		
+	}
+
+
+
+	Updateview(); 
+}
+
+
+
+
+
+
+
+function Win(){
+	alert('You WIN! Password Was ' + Password);
+	location.reload();
+}
+
+function Loss(){
+	alert('You Lose! Password Was ' + Password);
+	location.reload();
+}
+
+
+function Hint(){
+
+	if (GameType == "AI Test"){
+		Ailevel = 3;
+		var guess = AiGuess(Password); 
+		//if (guess != ""){ Wordarray.push(guess);}
+
+		PushWordList(guess);
+
+		scrollMainScreen = document.getElementById("mainscreen").scrollHeight;
+	
+			Updateview();
+	
+
+		return;
+	}
+	
+	
+	
+	var guess ="";
+	
+	if (GameType == "VS AI" && PlayerPassword == "" ){
+		guess = findAword(removedletters,keepletters,PassWordArray);
+		
+	}else{
+		guess = findAword(removedletters,keepletters,MegaWordArray);
+	}
+Debug("hint" + guess);
+	TopBar('Try ' + guess);
+	
+}
+
+
+
+function Random(){
+	
+	
+if (GameType == "VS AI" && PlayerPassword == "" ){
+	var guess = findAword(removedletters,keepletters,PassWordArray);
+	Debug("guess" + guess);
+	document.getElementById("InputBox").value = guess; 
+	document.getElementById("InputBox").focus();
+	   
+
+	return;
+}else{
+	var guess = findAword(removedletters,keepletters,MegaWordArray);
+
+
+	PushWordList(guess);
+
+	scrollMainScreen = document.getElementById("mainscreen").scrollHeight;
+	
+}
+
+
+Updateview();
+
+
+}
+
+
+
+
+
+
+
+
+function testdupe(arr) {
+	var letters = arr.split('');
+	
+	var uniquelet = [];
+	
+		
+	for (l=0;l<letters.length;l++){
+			var test = letters[l];
+			if (uniquelet.indexOf(test) === -1) { uniquelet.push(test)}
+		}
+		
+		return(uniquelet.length);
+}
+
+
+
+</script>
+
+</head>
+
+
+<body >
+
+<script>
+	if (debug) {
+		document.write('<table><tr><td>');
+	}
+</script>
+	
+		<center><table id="myTable" class=main border=0> </table> </center>
+		
+		
+		
+<script>
+	if (debug) {
+		document.write('</td><td style="vertical-align:top;"><div id="debug" class=Debugscrollable ></div></td></tr></table>');
+	}
+</script>
+
+
+
+
+<center><a href='http://www.nothingspecial.info'>
+<font size=1 COLOR=808080 >Nothing Special Software WordHacker vB.3 </font></a><br>
+
+
+<script type="text/javascript"><!--
+google_ad_client = "ca-pub-9741794017365918";
+/* wordhacker 2 */
+google_ad_slot = "4920289983";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="//pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+</center>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-38063133-2']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</body>	
+</html>			
+<script>
+DoneLoading();
+</script>
